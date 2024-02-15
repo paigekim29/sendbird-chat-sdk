@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
+:root:root {
+  --adm-color-primary: #6216CC;
+}
 
+@media (min-width: 540px) {
+  .floatingButton {
+    right: calc((100vw - 540px) / 2);
+  }
 }
