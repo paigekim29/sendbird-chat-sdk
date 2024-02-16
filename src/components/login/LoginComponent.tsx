@@ -3,16 +3,33 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Input, Space } from 'antd-mobile';
+import Sendbird from '@/utils/sendbird';
+import { useAtom } from 'jotai';
+import { sendbirdInfoAtom } from '@/atom/store';
 
 function LoginComponent() {
+  const [sendbirdInfo, setSendbirdInfo] = useAtom(sendbirdInfoAtom);
+
   const [id, setId] = useState('');
   const [nickname, setNickname] = useState('');
 
   const router = useRouter();
 
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    localStorage.setItem('userInfo', JSON.stringify({ id, nickname }));
+
+    const sendbirdChat = await Sendbird(id);
+    await sendbirdChat.setChannelInvitationPreference(true);
+
+    setSendbirdInfo({
+      ...sendbirdInfo,
+      nickname: nickname,
+      userId: id,
+    });
+    await sendbirdChat.updateCurrentUserInfo({
+      nickname,
+    });
+
     router.push('/channel');
   };
 
