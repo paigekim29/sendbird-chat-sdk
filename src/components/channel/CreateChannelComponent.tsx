@@ -25,6 +25,12 @@ function CreateChannelComponent() {
   };
 
   const handleCreateChannel = async () => {
+    if (!selected.includes(sendbirdInfo.userId)) {
+      return Toast.show({
+        content: 'You cannot create a channel without yourself.',
+      });
+    }
+
     const randomChannelName = Math.random().toString(36).substring(7);
     try {
       const sendbirdChat = await Sendbird(sendbirdInfo.userId);

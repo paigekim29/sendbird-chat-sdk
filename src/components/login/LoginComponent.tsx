@@ -22,11 +22,11 @@ function LoginComponent() {
     await sendbirdChat.setChannelInvitationPreference(true);
 
     setSendbirdInfo({
-      isNewChannelCreated: false,
-      applicationUsers: [],
-      channels: [],
       nickname: nickname,
       userId: id,
+      channels: [],
+      applicationUsers: [],
+      isNewChannelCreated: false,
     });
 
     await sendbirdChat.updateCurrentUserInfo({
