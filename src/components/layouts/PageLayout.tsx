@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { NavBar } from 'antd-mobile';
+import { NavBar, SafeArea } from 'antd-mobile';
 
 interface PageLayoutProps {
   title: string;
@@ -24,6 +24,7 @@ function PageLayout({ title, children }: PageLayoutProps) {
       <div className="max-w-xl flex mt-11 mx-auto">
         <div className="w-screen">{children}</div>
       </div>
+      <SafeArea position="bottom" />
     </>
   );
 }
