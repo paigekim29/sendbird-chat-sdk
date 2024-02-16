@@ -7,6 +7,7 @@ export interface SendbirdInfo {
   channels: GroupChannel[];
   nickname: string;
   userId: string;
+  isNewChannelCreated: boolean;
 }
 
 export const sendbirdInfoAtom = atomWithStorage<SendbirdInfo>('sendbirdInfo', {
@@ -14,4 +15,5 @@ export const sendbirdInfoAtom = atomWithStorage<SendbirdInfo>('sendbirdInfo', {
   channels: [],
   nickname: '',
   userId: '',
+  isNewChannelCreated: false,
 });

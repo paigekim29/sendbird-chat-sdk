@@ -4,12 +4,11 @@ import { usePathname, useRouter } from 'next/navigation';
 import { NavBar } from 'antd-mobile';
 
 interface PageLayoutProps {
-  onBack?: () => void;
   title: string;
   children: React.ReactNode;
 }
 
-function PageLayout({ onBack, title, children }: PageLayoutProps) {
+function PageLayout({ title, children }: PageLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
 

@@ -3,12 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Input, Space } from 'antd-mobile';
-import Sendbird from '@/utils/sendbird';
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { sendbirdInfoAtom } from '@/atom/store';
+import Sendbird from '@/utils/sendbird';
 
 function LoginComponent() {
-  const [sendbirdInfo, setSendbirdInfo] = useAtom(sendbirdInfoAtom);
+  const setSendbirdInfo = useSetAtom(sendbirdInfoAtom);
 
   const [id, setId] = useState('');
   const [nickname, setNickname] = useState('');
@@ -22,10 +22,13 @@ function LoginComponent() {
     await sendbirdChat.setChannelInvitationPreference(true);
 
     setSendbirdInfo({
-      ...sendbirdInfo,
+      isNewChannelCreated: false,
+      applicationUsers: [],
+      channels: [],
       nickname: nickname,
       userId: id,
     });
+
     await sendbirdChat.updateCurrentUserInfo({
       nickname,
     });
