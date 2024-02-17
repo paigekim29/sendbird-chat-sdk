@@ -13,7 +13,7 @@ import {
   MessageFilter,
 } from '@sendbird/chat/groupChannel';
 import { BaseMessage } from '@sendbird/chat/message';
-import {FetchMoreInterface} from "@/components/chat/ChatComponent";
+import { FetchMoreInterface } from '@/components/chat/ChatComponent';
 
 const useGetMessages = (
   channel: GroupChannel | undefined,
@@ -42,6 +42,7 @@ const useGetMessages = (
       if (!(current?.members || []).find((member) => member.userId === sendbirdInfo.userId)) {
         Toast.show({
           content: 'You are not authorized to view this channel.',
+          position: 'top',
         });
 
         router.push('/channel');
@@ -80,6 +81,7 @@ const useGetMessages = (
       console.error(error);
       Toast.show({
         content: 'An error occurred. Please refresh the page.',
+        position: 'top',
       });
     }
   };
@@ -96,11 +98,12 @@ const useGetMessages = (
       console.error(error);
       Toast.show({
         content: 'An error occurred. Please refresh the page.',
+        position: 'top',
       });
-    }finally {
-      setFetchMore({previous: false, next: false});
+    } finally {
+      setFetchMore({ previous: false, next: false });
     }
-  }
+  };
 
   const loadNext = async () => {
     try {
@@ -114,11 +117,12 @@ const useGetMessages = (
       console.error(error);
       Toast.show({
         content: 'An error occurred. Please refresh the page.',
+        position: 'top',
       });
     } finally {
-      setFetchMore({previous: false, next: false});
+      setFetchMore({ previous: false, next: false });
     }
-  }
+  };
 
   useEffect(() => {
     if (!sendbirdInfo.userId || !channel) {
@@ -128,12 +132,11 @@ const useGetMessages = (
     }
   }, [sendbirdInfo.userId]);
 
-
   useEffect(() => {
-    if(fetchMore.previous) {
+    if (fetchMore.previous) {
       loadPrevious();
     }
-    if(fetchMore.next) {
+    if (fetchMore.next) {
       loadNext();
     }
   }, [fetchMore]);

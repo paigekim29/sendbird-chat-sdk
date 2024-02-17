@@ -9,7 +9,7 @@ interface MessageListProps {
 }
 
 function MessageList({ messageList }: MessageListProps) {
-  const groupedMessages = messageList.reduce((acc: {[key: string]: BaseMessage[]}, message) => {
+  const groupedMessages = messageList.reduce((acc: { [key: string]: BaseMessage[] }, message) => {
     const messageDate = startOfDay(message.createdAt);
 
     if (!acc[messageDate]) {

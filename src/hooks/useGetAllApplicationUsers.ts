@@ -23,6 +23,7 @@ const useGetAllApplicationUsers = () => {
       console.error(error);
       Toast.show({
         content: 'An error occurred. Please refresh the page.',
+        position: 'top',
       });
     }
   };

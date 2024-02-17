@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Image, List } from 'antd-mobile';
 import { useAtomValue } from 'jotai';
 import { sendbirdInfoAtom } from '@/atom/store';
-import createChannelName from '@/utils/create-channel-name';
+import createEllipsis from '@/utils/create-ellipsis';
 import useGetInvitedChannels from '@/hooks/useGetInvitedChannels';
 import FloatingButton from '@/components/parts/FloatingButton';
 import CustomSuspense from '@/components/parts/CustomSuspense';
@@ -14,6 +14,14 @@ function ChannelComponent() {
   const sendbirdInfo = useAtomValue(sendbirdInfoAtom);
 
   const router = useRouter();
+
+  const handleDescription = (message: string) => {
+    if (message && message.length > 20) {
+      return message.slice(0, 20) + '...';
+    } else {
+      return message || '';
+    }
+  };
 
   return (
     <>
@@ -38,9 +46,9 @@ function ChannelComponent() {
                   className="my-3"
                 />
               }
-              description={(channel.lastMessage as any)?.message || ''}
+              description={handleDescription((channel.lastMessage as any)?.message || '')}
             >
-              {createChannelName(channel.members)}
+              {createEllipsis(channel.members, 20)}
               {channel.members.length > 2 && <span className="text-gray-400 ml-4">{channel.members.length}</span>}
             </List.Item>
           ))}

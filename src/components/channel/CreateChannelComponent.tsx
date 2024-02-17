@@ -45,6 +45,7 @@ function CreateChannelComponent() {
       const { url } = groupChannel;
       Toast.show({
         content: 'A new channel has been created.',
+        position: 'top',
       });
 
       router.push(`/channel/${url}`);
@@ -52,6 +53,7 @@ function CreateChannelComponent() {
       console.error(error);
       Toast.show({
         content: 'An error occurred. Please try again.',
+        position: 'top',
       });
     }
   };

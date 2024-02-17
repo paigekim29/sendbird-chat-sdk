@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Space } from 'antd-mobile';
+import { Button, Input, Space, Toast } from 'antd-mobile';
 import { useSetAtom } from 'jotai';
 import { sendbirdInfoAtom } from '@/atom/store';
 import Sendbird from '@/utils/sendbird';
@@ -18,22 +18,29 @@ function LoginComponent() {
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const sendbirdChat = await Sendbird(id);
-    await sendbirdChat.setChannelInvitationPreference(true);
+    try {
+      const sendbirdChat = await Sendbird(id);
+      await sendbirdChat.setChannelInvitationPreference(true);
 
-    setSendbirdInfo({
-      nickname: nickname,
-      userId: id,
-      channels: [],
-      applicationUsers: [],
-      isNewChannelCreated: false,
-    });
+      setSendbirdInfo({
+        nickname: nickname,
+        userId: id,
+        channels: [],
+        applicationUsers: [],
+        isNewChannelCreated: false,
+      });
+      await sendbirdChat.updateCurrentUserInfo({
+        nickname,
+      });
 
-    await sendbirdChat.updateCurrentUserInfo({
-      nickname,
-    });
-
-    router.push('/channel');
+      router.push('/channel');
+    } catch (error) {
+      console.error(error);
+      Toast.show({
+        content: 'An error occurred. Please try again.',
+        position: 'top',
+      });
+    }
   };
 
   return (
