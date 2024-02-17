@@ -1,19 +1,23 @@
-import { atomWithStorage } from 'jotai/utils';
+import { atomWithReset } from 'jotai/utils';
 import { User } from '@sendbird/chat';
-import { GroupChannel } from '@sendbird/chat/groupChannel';
+import { GroupChannel, Member } from '@sendbird/chat/groupChannel';
 
 export interface SendbirdInfo {
-  applicationUsers: User[];
-  channels: GroupChannel[];
-  nickname: string;
-  userId: string;
-  isNewChannelCreated: boolean;
+  applicationUsers?: User[];
+  channels?: GroupChannel[];
+  nickname?: string;
+  userId?: string;
+  isNewChannelCreated?: boolean;
+  currentChannel?: GroupChannel | null;
+  typingMembers?: Member[];
 }
 
-export const sendbirdInfoAtom = atomWithStorage<SendbirdInfo>('sendbirdInfo', {
+export const sendbirdInfoAtom = atomWithReset<SendbirdInfo>({
   applicationUsers: [],
   channels: [],
   nickname: '',
   userId: '',
   isNewChannelCreated: false,
+  currentChannel: null,
+  typingMembers: [],
 });
