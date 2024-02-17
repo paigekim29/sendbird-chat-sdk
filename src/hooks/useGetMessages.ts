@@ -13,14 +13,18 @@ import {
   MessageFilter,
 } from '@sendbird/chat/groupChannel';
 import { BaseMessage } from '@sendbird/chat/message';
+import {FetchMoreInterface} from "@/components/chat/ChatComponent";
 
 const useGetMessages = (
   channel: GroupChannel | undefined,
   setMessageList: React.Dispatch<React.SetStateAction<BaseMessage[]>>,
+  fetchMore: FetchMoreInterface,
+  setFetchMore: React.Dispatch<React.SetStateAction<FetchMoreInterface>>,
 ) => {
   const [isLoading, setIsLoading] = useState(true);
   const [sendbirdInfo, setSendbirdInfo] = useAtom(sendbirdInfoAtom);
 
+  const [collection, setCollection] = useState<MessageCollection | null>(null);
   const router = useRouter();
 
   const messageHandlers: MessageCollectionEventHandler = {
@@ -50,7 +54,7 @@ const useGetMessages = (
         const messageCollection: MessageCollection = channel.createMessageCollection({
           filter: messageFilter,
           limit: 100,
-          startingPoint: Date.now(),
+          startingPoint: Number.MAX_SAFE_INTEGER,
         });
 
         messageCollection.setMessageCollectionHandler(messageHandlers);
@@ -69,6 +73,7 @@ const useGetMessages = (
             setMessageList((messages || []).reverse());
           });
 
+        setCollection(messageCollection);
         setIsLoading(false);
       }
     } catch (error) {
@@ -79,6 +84,42 @@ const useGetMessages = (
     }
   };
 
+  const loadPrevious = async () => {
+    try {
+      if (collection?.hasPrevious) {
+        collection.loadPrevious().then(function (messages) {
+          const messageList = messages.reverse();
+          setMessageList((prev) => [...messageList, ...prev]);
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      Toast.show({
+        content: 'An error occurred. Please refresh the page.',
+      });
+    }finally {
+      setFetchMore({previous: false, next: false});
+    }
+  }
+
+  const loadNext = async () => {
+    try {
+      if (collection?.hasNext) {
+        collection.loadNext().then(function (messages) {
+          const messageList = messages.reverse();
+          setMessageList((prev) => [...messageList, ...prev]);
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      Toast.show({
+        content: 'An error occurred. Please refresh the page.',
+      });
+    } finally {
+      setFetchMore({previous: false, next: false});
+    }
+  }
+
   useEffect(() => {
     if (!sendbirdInfo.userId || !channel) {
       return;
@@ -86,6 +127,16 @@ const useGetMessages = (
       loadMessages(channel);
     }
   }, [sendbirdInfo.userId]);
+
+
+  useEffect(() => {
+    if(fetchMore.previous) {
+      loadPrevious();
+    }
+    if(fetchMore.next) {
+      loadNext();
+    }
+  }, [fetchMore]);
 
   return { isLoading };
 };
