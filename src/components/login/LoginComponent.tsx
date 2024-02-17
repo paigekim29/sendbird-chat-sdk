@@ -25,9 +25,6 @@ function LoginComponent() {
       setSendbirdInfo({
         nickname: nickname,
         userId: id,
-        channels: [],
-        applicationUsers: [],
-        isNewChannelCreated: false,
       });
       await sendbirdChat.updateCurrentUserInfo({
         nickname,

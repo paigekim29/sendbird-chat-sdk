@@ -15,7 +15,7 @@ import { CheckListValue } from 'antd-mobile/es/components/check-list';
 function CreateChannelComponent() {
   const sendbirdInfo = useAtomValue(sendbirdInfoAtom);
 
-  const [selected, setSelected] = useState<string[]>([sendbirdInfo.userId]);
+  const [selected, setSelected] = useState<string[]>([sendbirdInfo?.userId || '']);
   const { isLoading } = useGetAllApplicationUsers();
 
   const router = useRouter();
@@ -25,7 +25,7 @@ function CreateChannelComponent() {
   };
 
   const handleCreateChannel = async () => {
-    if (!selected.includes(sendbirdInfo.userId)) {
+    if (!selected.includes(sendbirdInfo?.userId || '')) {
       return Toast.show({
         content: 'You cannot create a channel without yourself.',
       });
@@ -33,7 +33,7 @@ function CreateChannelComponent() {
 
     const randomChannelName = Math.random().toString(36).substring(7);
     try {
-      const sendbirdChat = await Sendbird(sendbirdInfo.userId);
+      const sendbirdChat = await Sendbird(sendbirdInfo?.userId || '');
 
       const groupChannelParams = {
         name: randomChannelName,
@@ -61,11 +61,11 @@ function CreateChannelComponent() {
   return (
     <CustomSuspense
       isLoading={isLoading}
-      hasData={!!sendbirdInfo.applicationUsers.length}
+      hasData={!!(sendbirdInfo?.applicationUsers || []).length}
       emptyContext="Please refresh the page."
     >
       <CheckList multiple defaultValue={selected} onChange={(val) => handleSelectedUsers(val)}>
-        {sendbirdInfo?.applicationUsers.map((user) => (
+        {(sendbirdInfo?.applicationUsers || []).map((user) => (
           <CheckList.Item key={user.userId} value={user.userId}>
             {user?.nickname || user.userId}
           </CheckList.Item>

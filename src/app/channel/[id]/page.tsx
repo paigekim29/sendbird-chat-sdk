@@ -11,9 +11,11 @@ function Chat() {
   const pathname = usePathname();
   const sendbirdInfo = useAtomValue(sendbirdInfoAtom);
 
-  const currentChannel = sendbirdInfo.channels.find((channel) => channel.url === pathname.split('/').slice(2)[0]);
+  const currentChannel = (sendbirdInfo?.channels || []).find(
+    (channel) => channel.url === pathname.split('/').slice(2)[0],
+  );
 
-  const title = createTitle(currentChannel?.members || [], sendbirdInfo.userId);
+  const title = createTitle(currentChannel?.members || [], sendbirdInfo?.userId || '');
 
   return (
     <PageLayout title={title}>

@@ -1,66 +1,88 @@
-import {useEffect, useState} from 'react';
-import {Toast} from 'antd-mobile';
-import {useAtom} from 'jotai';
+import { useEffect, useRef, useState } from 'react';
+import { Toast } from 'antd-mobile';
+import { useAtom } from 'jotai';
 import Sendbird from '@/utils/sendbird';
-import {sendbirdInfoAtom} from '@/atom/store';
+import { SendbirdInfo, sendbirdInfoAtom } from '@/atom/store';
 
 import {
-	GroupChannel,
-	GroupChannelCollection,
-	GroupChannelCollectionEventHandler,
-	GroupChannelEventContext,
-	GroupChannelFilter,
-	GroupChannelListOrder
+  GroupChannel,
+  GroupChannelCollection,
+  GroupChannelCollectionEventHandler,
+  GroupChannelEventContext,
+  GroupChannelFilter,
+  GroupChannelListOrder,
 } from '@sendbird/chat/groupChannel';
 
 const useGetInvitedChannels = () => {
-	const [isLoading, setIsLoading] = useState(true);
-	const [sendbirdInfo, setSendbirdInfo] = useAtom(sendbirdInfoAtom);
+  const [isLoading, setIsLoading] = useState(true);
+  const [sendbirdInfo, setSendbirdInfo] = useAtom(sendbirdInfoAtom);
 
-	const channelHandlers: GroupChannelCollectionEventHandler = {
-		// @ts-ignore
-		onChannelsAdded: (context: GroupChannelEventContext, channels: GroupChannel[]) => {
-			const updatedChannels = [...channels, ...sendbirdInfo.channels];
-			setSendbirdInfo({...sendbirdInfo, channels: updatedChannels, isNewChannelCreated: true});
-		},
-	};
+  const sendbirdRef = useRef<SendbirdInfo>();
+  sendbirdRef.current = sendbirdInfo;
 
-	const loadChannels = async (id: string) => {
-		try {
-			const sendbirdChat = await Sendbird(id);
-			const groupCollection: GroupChannelCollection = sendbirdChat.groupChannel.createGroupChannelCollection({
-				filter: new GroupChannelFilter({
-					includeEmpty: true,
-				}),
-				order: GroupChannelListOrder.LATEST_LAST_MESSAGE,
-			});
+  const channelHandlers: GroupChannelCollectionEventHandler = {
+    // @ts-ignore
+    onChannelsAdded: (context: GroupChannelEventContext, channels: GroupChannel[]) => {
+      const updatedChannels = [...channels, ...(sendbirdRef.current?.channels || [])];
+      setSendbirdInfo({
+        ...sendbirdRef.current,
+        channels: updatedChannels,
+        isNewChannelCreated: true,
+      });
+    },
+    // @ts-ignore
+    onChannelsUpdated: (context: GroupChannelEventContext, channels: GroupChannel[]) => {
+      const currentChannel = channels.find((channel) => channel.url === sendbirdRef.current?.currentChannel?.url);
+      const updatedChannels = (sendbirdRef.current?.channels || []).map((channel) => {
+        const updatedChannel = channels.find((updatedChannel) => updatedChannel.url === channel.url);
+        return updatedChannel || channel;
+      });
 
-			groupCollection.setGroupChannelCollectionHandler(channelHandlers);
+      setSendbirdInfo({
+        ...sendbirdRef.current,
+        channels: updatedChannels,
+        currentChannel,
+        typingMembers: currentChannel ? currentChannel.getTypingUsers() : [],
+      });
+    },
+  };
 
-			const channels = await groupCollection.loadMore();
+  const loadChannels = async (id: string) => {
+    try {
+      const sendbirdChat = await Sendbird(id);
+      const groupCollection: GroupChannelCollection = sendbirdChat.groupChannel.createGroupChannelCollection({
+        filter: new GroupChannelFilter({
+          includeEmpty: true,
+        }),
+        order: GroupChannelListOrder.LATEST_LAST_MESSAGE,
+      });
 
-			setSendbirdInfo({
-				...sendbirdInfo,
-				channels,
-				isNewChannelCreated: false,
-			});
-			setIsLoading(false);
-		} catch (error) {
-			console.error(error);
-			Toast.show({
-				content: 'An error occurred. Please refresh the page.',
-			});
-		}
-	};
+      groupCollection.setGroupChannelCollectionHandler(channelHandlers);
 
-	useEffect(() => {
-		if (!sendbirdInfo.userId) {
-			return;
-		}
-		loadChannels(sendbirdInfo.userId);
-	}, [sendbirdInfo.userId, sendbirdInfo.isNewChannelCreated]);
+      const channels = await groupCollection.loadMore();
 
-	return {isLoading};
+      setSendbirdInfo({
+        ...sendbirdInfo,
+        channels,
+        isNewChannelCreated: false,
+      });
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+      Toast.show({
+        content: 'An error occurred. Please refresh the page.',
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (!sendbirdInfo.userId) {
+      return;
+    }
+    loadChannels(sendbirdInfo.userId);
+  }, [sendbirdInfo.userId, sendbirdInfo.isNewChannelCreated]);
+
+  return { isLoading };
 };
 
 export default useGetInvitedChannels;

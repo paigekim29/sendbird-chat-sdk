@@ -2,16 +2,17 @@
 
 import { useRouter } from 'next/navigation';
 import { Image, List } from 'antd-mobile';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { sendbirdInfoAtom } from '@/atom/store';
 import createEllipsis from '@/utils/create-ellipsis';
 import useGetInvitedChannels from '@/hooks/useGetInvitedChannels';
 import FloatingButton from '@/components/parts/FloatingButton';
 import CustomSuspense from '@/components/parts/CustomSuspense';
+import { GroupChannel } from '@sendbird/chat/groupChannel';
 
 function ChannelComponent() {
   const { isLoading } = useGetInvitedChannels();
-  const sendbirdInfo = useAtomValue(sendbirdInfoAtom);
+  const [sendbirdInfo, setSendbirdInfo] = useAtom(sendbirdInfoAtom);
 
   const router = useRouter();
 
@@ -23,19 +24,28 @@ function ChannelComponent() {
     }
   };
 
+  const handleChannel = (channel: GroupChannel) => {
+    setSendbirdInfo({
+      ...sendbirdInfo,
+      currentChannel: channel,
+    });
+
+    router.push(`/channel/${channel.url}`);
+  };
+
   return (
     <>
       <CustomSuspense
         isLoading={isLoading}
-        hasData={!!sendbirdInfo.channels.length}
+        hasData={!!(sendbirdInfo?.channels || []).length}
         emptyContext="Connect with Sendbird :)"
       >
         <List>
-          {sendbirdInfo.channels.map((channel) => (
+          {(sendbirdInfo?.channels || []).map((channel: GroupChannel) => (
             <List.Item
               clickable
               key={channel.url}
-              onClick={() => router.push(`/channel/${channel.url}`)}
+              onClick={() => handleChannel(channel)}
               prefix={
                 <Image
                   src={channel.coverUrl}
