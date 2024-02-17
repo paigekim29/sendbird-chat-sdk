@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Image, List } from 'antd-mobile';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { sendbirdInfoAtom } from '@/atom/store';
 import createEllipsis from '@/utils/create-ellipsis';
 import useGetInvitedChannels from '@/hooks/useGetInvitedChannels';

@@ -28,6 +28,7 @@ function CreateChannelComponent() {
     if (!selected.includes(sendbirdInfo?.userId || '')) {
       return Toast.show({
         content: 'You cannot create a channel without yourself.',
+        position: 'top',
       });
     }
 
@@ -40,15 +41,14 @@ function CreateChannelComponent() {
         invitedUserIds: selected,
         operationUserIds: selected,
       };
-      const groupChannel = await sendbirdChat.groupChannel.createChannel(groupChannelParams);
 
-      const { url } = groupChannel;
+      await sendbirdChat.groupChannel.createChannel(groupChannelParams);
       Toast.show({
         content: 'A new channel has been created.',
         position: 'top',
       });
 
-      router.push(`/channel/${url}`);
+      router.push('/channel');
     } catch (error) {
       console.error(error);
       Toast.show({
