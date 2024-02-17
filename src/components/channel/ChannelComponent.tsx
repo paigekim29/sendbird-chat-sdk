@@ -2,32 +2,50 @@
 
 import { useRouter } from 'next/navigation';
 import { Image, List } from 'antd-mobile';
-import { useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { sendbirdInfoAtom } from '@/atom/store';
-import createChannelName from '@/utils/create-channel-name';
+import createEllipsis from '@/utils/create-ellipsis';
 import useGetInvitedChannels from '@/hooks/useGetInvitedChannels';
 import FloatingButton from '@/components/parts/FloatingButton';
 import CustomSuspense from '@/components/parts/CustomSuspense';
+import { GroupChannel } from '@sendbird/chat/groupChannel';
 
 function ChannelComponent() {
   const { isLoading } = useGetInvitedChannels();
-  const sendbirdInfo = useAtomValue(sendbirdInfoAtom);
+  const [sendbirdInfo, setSendbirdInfo] = useAtom(sendbirdInfoAtom);
 
   const router = useRouter();
+
+  const handleDescription = (message: string) => {
+    if (message && message.length > 20) {
+      return message.slice(0, 20) + '...';
+    } else {
+      return message || '';
+    }
+  };
+
+  const handleChannel = (channel: GroupChannel) => {
+    setSendbirdInfo({
+      ...sendbirdInfo,
+      currentChannel: channel,
+    });
+
+    router.push(`/channel/${channel.url}`);
+  };
 
   return (
     <>
       <CustomSuspense
         isLoading={isLoading}
-        hasData={!!sendbirdInfo.channels.length}
+        hasData={!!(sendbirdInfo?.channels || []).length}
         emptyContext="Connect with Sendbird :)"
       >
         <List>
-          {sendbirdInfo.channels.map((channel) => (
+          {(sendbirdInfo?.channels || []).map((channel: GroupChannel) => (
             <List.Item
               clickable
               key={channel.url}
-              onClick={() => router.push(`/channel/${channel.url}`)}
+              onClick={() => handleChannel(channel)}
               prefix={
                 <Image
                   src={channel.coverUrl}
@@ -38,9 +56,9 @@ function ChannelComponent() {
                   className="my-3"
                 />
               }
-              description={(channel.lastMessage as any)?.message || ''}
+              description={handleDescription((channel.lastMessage as any)?.message || '')}
             >
-              {createChannelName(channel.members)}
+              {createEllipsis(channel.members, 20)}
               {channel.members.length > 2 && <span className="text-gray-400 ml-4">{channel.members.length}</span>}
             </List.Item>
           ))}

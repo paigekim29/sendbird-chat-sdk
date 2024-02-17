@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Toast } from 'antd-mobile';
 import { useAtom } from 'jotai';
 import Sendbird from '@/utils/sendbird';
-import { sendbirdInfoAtom } from '@/atom/store';
+import { SendbirdInfo, sendbirdInfoAtom } from '@/atom/store';
 
 import {
   GroupChannel,
@@ -17,11 +17,33 @@ const useGetInvitedChannels = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [sendbirdInfo, setSendbirdInfo] = useAtom(sendbirdInfoAtom);
 
+  const sendbirdRef = useRef<SendbirdInfo>();
+  sendbirdRef.current = sendbirdInfo;
+
   const channelHandlers: GroupChannelCollectionEventHandler = {
     // @ts-ignore
     onChannelsAdded: (context: GroupChannelEventContext, channels: GroupChannel[]) => {
-      const updatedChannels = [...channels, ...sendbirdInfo.channels];
-      setSendbirdInfo({ ...sendbirdInfo, channels: updatedChannels, isNewChannelCreated: true });
+      const updatedChannels = [...channels, ...(sendbirdRef.current?.channels || [])];
+      setSendbirdInfo({
+        ...sendbirdRef.current,
+        channels: updatedChannels,
+        isNewChannelCreated: true,
+      });
+    },
+    // @ts-ignore
+    onChannelsUpdated: (context: GroupChannelEventContext, channels: GroupChannel[]) => {
+      const currentChannel = channels.find((channel) => channel.url === sendbirdRef.current?.currentChannel?.url);
+      const updatedChannels = (sendbirdRef.current?.channels || []).map((channel) => {
+        const updatedChannel = channels.find((updatedChannel) => updatedChannel.url === channel.url);
+        return updatedChannel || channel;
+      });
+
+      setSendbirdInfo({
+        ...sendbirdRef.current,
+        channels: updatedChannels,
+        currentChannel,
+        typingMembers: currentChannel ? currentChannel.getTypingUsers() : [],
+      });
     },
   };
 

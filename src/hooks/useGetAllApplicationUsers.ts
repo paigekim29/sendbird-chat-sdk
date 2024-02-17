@@ -10,7 +10,7 @@ const useGetAllApplicationUsers = () => {
 
   const handleSendbirdInfo = async () => {
     try {
-      const sendbirdChat = await Sendbird(sendbirdInfo.userId);
+      const sendbirdChat = await Sendbird(sendbirdInfo?.userId || '');
 
       const userQuery = sendbirdChat.createApplicationUserListQuery({ limit: 100 });
       const users = await userQuery.next();
@@ -23,6 +23,7 @@ const useGetAllApplicationUsers = () => {
       console.error(error);
       Toast.show({
         content: 'An error occurred. Please refresh the page.',
+        position: 'top',
       });
     }
   };
