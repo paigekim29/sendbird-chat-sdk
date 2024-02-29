@@ -80,7 +80,7 @@ function ChatComponent({ channel }: ChatComponentProps) {
         </CustomSuspense>
         {!!sendbirdInfo?.typingMembers?.length && (
           <div className="mx-2">
-            {createEllipsis(sendbirdInfo?.typingMembers || [], 2)} is typing
+            {createEllipsis(sendbirdInfo?.userId || '', sendbirdInfo?.typingMembers || [], 2, 'typingMember')} is typing
             <DotLoading />
           </div>
         )}

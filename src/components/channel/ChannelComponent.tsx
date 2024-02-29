@@ -58,7 +58,7 @@ function ChannelComponent() {
               }
               description={handleDescription((channel.lastMessage as any)?.message || '')}
             >
-              {createEllipsis(channel.members, 20)}
+              {createEllipsis(sendbirdInfo?.userId || '', channel.members, 20)}
               {channel.members.length > 2 && <span className="text-gray-400 ml-4">{channel.members.length}</span>}
             </List.Item>
           ))}
