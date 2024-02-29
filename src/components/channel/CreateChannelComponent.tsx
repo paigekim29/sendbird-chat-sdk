@@ -16,7 +16,7 @@ function CreateChannelComponent() {
   const sendbirdInfo = useAtomValue(sendbirdInfoAtom);
 
   const [selected, setSelected] = useState<string[]>([sendbirdInfo?.userId || '']);
-  const { isLoading } = useGetAllApplicationUsers();
+  const { isLoading, applicationUsers } = useGetAllApplicationUsers();
 
   const router = useRouter();
 
@@ -43,6 +43,7 @@ function CreateChannelComponent() {
       };
 
       await sendbirdChat.groupChannel.createChannel(groupChannelParams);
+
       Toast.show({
         content: 'A new channel has been created.',
         position: 'top',
@@ -59,13 +60,9 @@ function CreateChannelComponent() {
   };
 
   return (
-    <CustomSuspense
-      isLoading={isLoading}
-      hasData={!!(sendbirdInfo?.applicationUsers || []).length}
-      emptyContext="Please refresh the page."
-    >
+    <CustomSuspense isLoading={isLoading} hasData={!!applicationUsers.length} emptyContext="Please refresh the page.">
       <CheckList multiple defaultValue={selected} onChange={(val) => handleSelectedUsers(val)}>
-        {(sendbirdInfo?.applicationUsers || []).map((user) => (
+        {applicationUsers.map((user) => (
           <CheckList.Item key={user.userId} value={user.userId}>
             {user?.nickname || user.userId}
           </CheckList.Item>

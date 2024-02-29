@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { Toast } from 'antd-mobile';
 import Sendbird from '@/utils/sendbird';
 import { sendbirdInfoAtom } from '@/atom/store';
 
+import { User } from '@sendbird/chat';
+
 const useGetAllApplicationUsers = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [sendbirdInfo, setSendbirdInfo] = useAtom(sendbirdInfoAtom);
+  const [applicationUsers, setApplicationUsers] = useState<User[]>([]);
+
+  const sendbirdInfo = useAtomValue(sendbirdInfoAtom);
 
   const handleSendbirdInfo = async () => {
     try {
@@ -14,10 +18,7 @@ const useGetAllApplicationUsers = () => {
 
       const userQuery = sendbirdChat.createApplicationUserListQuery({ limit: 100 });
       const users = await userQuery.next();
-      setSendbirdInfo({
-        ...sendbirdInfo,
-        applicationUsers: users,
-      });
+      setApplicationUsers(users);
       setIsLoading(false);
     } catch (error) {
       console.error(error);
@@ -35,7 +36,7 @@ const useGetAllApplicationUsers = () => {
     handleSendbirdInfo();
   }, [sendbirdInfo.userId]);
 
-  return { isLoading };
+  return { isLoading, applicationUsers };
 };
 
 export default useGetAllApplicationUsers;
