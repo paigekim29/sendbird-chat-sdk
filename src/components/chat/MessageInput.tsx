@@ -6,7 +6,7 @@ import { GroupChannel } from '@sendbird/chat/groupChannel';
 import { BaseMessage } from '@sendbird/chat/message';
 
 interface MessageInputProps {
-  channel?: GroupChannel;
+  channel?: GroupChannel | null;
   messageList: BaseMessage[];
   setMessageList: React.Dispatch<React.SetStateAction<BaseMessage[]>>;
 }

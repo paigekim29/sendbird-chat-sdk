@@ -14,7 +14,7 @@ import { BaseMessage } from '@sendbird/chat/message';
 import { DotLoading } from 'antd-mobile';
 
 interface ChatComponentProps {
-  channel?: GroupChannel;
+  channel?: GroupChannel | null;
 }
 
 export interface FetchMoreInterface {

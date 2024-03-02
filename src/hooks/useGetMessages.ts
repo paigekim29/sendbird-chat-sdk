@@ -16,7 +16,7 @@ import { BaseMessage } from '@sendbird/chat/message';
 import { FetchMoreInterface } from '@/components/chat/ChatComponent';
 
 const useGetMessages = (
-  channel: GroupChannel | undefined,
+  channel: GroupChannel | undefined | null,
   setMessageList: React.Dispatch<React.SetStateAction<BaseMessage[]>>,
   fetchMore: FetchMoreInterface,
   setFetchMore: React.Dispatch<React.SetStateAction<FetchMoreInterface>>,
