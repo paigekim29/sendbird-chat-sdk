@@ -16,7 +16,9 @@ function CreateChannelComponent() {
   const sendbirdInfo = useAtomValue(sendbirdInfoAtom);
 
   const [selected, setSelected] = useState<string[]>([sendbirdInfo?.userId || '']);
-  const { isLoading } = useGetAllApplicationUsers();
+  const { isLoading, applicationUsers } = useGetAllApplicationUsers();
+
+  const usersList = applicationUsers.filter((user) => user.userId !== sendbirdInfo?.userId);
 
   const router = useRouter();
 
@@ -25,24 +27,19 @@ function CreateChannelComponent() {
   };
 
   const handleCreateChannel = async () => {
-    if (!selected.includes(sendbirdInfo?.userId || '')) {
-      return Toast.show({
-        content: 'You cannot create a channel without yourself.',
-        position: 'top',
-      });
-    }
-
     const randomChannelName = Math.random().toString(36).substring(7);
     try {
       const sendbirdChat = await Sendbird(sendbirdInfo?.userId || '');
 
+      const selectedWithUser = [...selected, sendbirdInfo?.userId];
       const groupChannelParams = {
         name: randomChannelName,
-        invitedUserIds: selected,
-        operationUserIds: selected,
+        invitedUserIds: selectedWithUser,
+        operationUserIds: selectedWithUser,
       };
 
       await sendbirdChat.groupChannel.createChannel(groupChannelParams);
+
       Toast.show({
         content: 'A new channel has been created.',
         position: 'top',
@@ -59,13 +56,9 @@ function CreateChannelComponent() {
   };
 
   return (
-    <CustomSuspense
-      isLoading={isLoading}
-      hasData={!!(sendbirdInfo?.applicationUsers || []).length}
-      emptyContext="Please refresh the page."
-    >
-      <CheckList multiple defaultValue={selected} onChange={(val) => handleSelectedUsers(val)}>
-        {(sendbirdInfo?.applicationUsers || []).map((user) => (
+    <CustomSuspense isLoading={isLoading} hasData={!!applicationUsers.length} emptyContext="Please refresh the page.">
+      <CheckList multiple onChange={(val) => handleSelectedUsers(val)}>
+        {usersList.map((user) => (
           <CheckList.Item key={user.userId} value={user.userId}>
             {user?.nickname || user.userId}
           </CheckList.Item>

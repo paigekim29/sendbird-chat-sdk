@@ -16,7 +16,7 @@ import { BaseMessage } from '@sendbird/chat/message';
 import { FetchMoreInterface } from '@/components/chat/ChatComponent';
 
 const useGetMessages = (
-  channel: GroupChannel | undefined,
+  channel: GroupChannel | undefined | null,
   setMessageList: React.Dispatch<React.SetStateAction<BaseMessage[]>>,
   fetchMore: FetchMoreInterface,
   setFetchMore: React.Dispatch<React.SetStateAction<FetchMoreInterface>>,
@@ -89,10 +89,9 @@ const useGetMessages = (
   const loadPrevious = async () => {
     try {
       if (collection?.hasPrevious) {
-        collection.loadPrevious().then(function (messages) {
-          const messageList = messages.reverse();
-          setMessageList((prev) => [...messageList, ...prev]);
-        });
+        const prevMessages: BaseMessage[] = await collection.loadPrevious();
+        const messageList = prevMessages.reverse();
+        setMessageList((prev) => [...messageList, ...prev]);
       }
     } catch (error) {
       console.error(error);
@@ -108,10 +107,9 @@ const useGetMessages = (
   const loadNext = async () => {
     try {
       if (collection?.hasNext) {
-        collection.loadNext().then(function (messages) {
-          const messageList = messages.reverse();
-          setMessageList((prev) => [...messageList, ...prev]);
-        });
+        const nextMessages: BaseMessage[] = await collection.loadNext();
+        const messageList = nextMessages.reverse();
+        setMessageList((prev) => [...messageList, ...prev]);
       }
     } catch (error) {
       console.error(error);
